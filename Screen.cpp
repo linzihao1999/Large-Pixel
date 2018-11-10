@@ -50,11 +50,11 @@ void Screen::DisPlay() {
         }
     }
     glFlush();
-    glutPostRedisplay();
 }
 
 void Screen::Run() {
     glutDisplayFunc(DisPlay);
+    glutReshapeFunc(ChangeSize);
     glutMainLoop();
 }
 
@@ -84,4 +84,21 @@ void Screen::SetDemo() {
         }
     }
     ChangePixel(5, 5, 0.5, 0.5, 0.5);
+}
+
+void Screen::ChangeSize(int w, int h) {
+    if (h == 0)
+        h = 1;
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    if (w <= h) {
+        gluOrtho2D(0.0f, 300.0f, 300.0f * h / w, 0.0f);
+    } else {
+        gluOrtho2D(0.0f, 300.0f * w / h, 300.0f, 0.0f);
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }

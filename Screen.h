@@ -17,6 +17,8 @@ public:
 
     static void DisPlay();
 
+    static void ChangeSize(int, int);
+
     static int blockx, blocky;
 
     static float color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
