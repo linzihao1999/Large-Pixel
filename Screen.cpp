@@ -2,10 +2,14 @@
 #include <GLUT/glut.h>
 #include "ConstNum.h"
 #include <cstdlib>
+#include <iostream>
 
 int Screen::blockx = 0;
 int Screen::blocky = 0;
 float Screen::color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
+int Screen::NowSizex = 0;
+int Screen::NowSizey = 0;
+float Screen::ChangeRate = 0;
 
 Screen::Screen(int argc, char **argv) {
     glutInit(&argc, argv);
@@ -21,14 +25,16 @@ void Screen::Init() {
     gluOrtho2D(0.0, WINDOWS_SIZE_X, 0.0, WINDOWS_SIZE_Y);
     blockx = WINDOWS_SIZE_X / N;
     blocky = WINDOWS_SIZE_Y / M;
+    NowSizex = WINDOWS_SIZE_X;
+    NowSizey = WINDOWS_SIZE_Y;
 }
 
 void Screen::DisPlay() {
     glClear(GL_COLOR_BUFFER_BIT);
     for (int x = 0; x < WINDOWS_SIZE_X; x += blockx) {
         for (int y = 0; y < WINDOWS_SIZE_Y; y += blocky) {
-            //glColor3f(color[x][y][0], color[x][y][1], color[x][y][2]);
-            glColor3f((double) rand() / RAND_MAX, (double) rand() / RAND_MAX, (double) rand() / RAND_MAX);
+            glColor3f(color[x][y][0], color[x][y][1], color[x][y][2]);
+            //glColor3f((double) rand() / RAND_MAX, (double) rand() / RAND_MAX, (double) rand() / RAND_MAX);
             //glColor3f(1, 1, 1);
             glBegin(GL_POLYGON);
             glVertex2i(x, y);
@@ -50,11 +56,13 @@ void Screen::DisPlay() {
         }
     }
     glFlush();
+    //glutPostRedisplay();
 }
 
 void Screen::Run() {
     glutDisplayFunc(DisPlay);
     glutReshapeFunc(ChangeSize);
+    glutMouseFunc(MouseFcn);
     glutMainLoop();
 }
 
@@ -83,22 +91,30 @@ void Screen::SetDemo() {
             flag ^= 1;
         }
     }
-    ChangePixel(5, 5, 0.5, 0.5, 0.5);
+    ChangePixel(3, 2, 0.5, 0.5, 0.5);
 }
 
 void Screen::ChangeSize(int w, int h) {
-    if (h == 0)
-        h = 1;
+    NowSizex = w;
+    NowSizey = h;
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-
-    if (w <= h) {
-        gluOrtho2D(0.0f, 300.0f, 300.0f * h / w, 0.0f);
+    if (h == 0)
+        h = 1;
+    if (w > h) {
+        gluOrtho2D(0.0, 1.0 * WINDOWS_SIZE_X * w / h, 0.0, WINDOWS_SIZE_Y);
     } else {
-        gluOrtho2D(0.0f, 300.0f * w / h, 300.0f, 0.0f);
+        gluOrtho2D(0.0, WINDOWS_SIZE_X, 0.0, 1.0 * WINDOWS_SIZE_Y * h / w);
     }
+}
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
+    float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockx;
+    if (action == GLUT_DOWN) {
+        ymouse = NowSizey - ymouse;
+        int changex = xmouse / nowblock, changey = ymouse / nowblock;
+        ChangePixel(changex+1, changey+1, 0, 0, 0);
+    }
+    glutPostRedisplay();
 }

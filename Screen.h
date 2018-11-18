@@ -11,7 +11,7 @@ public:
 
     void Run();
 
-    void ChangePixel(int x, int y, float r, float g, float b);
+    static void ChangePixel(int x, int y, float r, float g, float b);
 
     void SetDemo();
 
@@ -19,9 +19,13 @@ public:
 
     static void ChangeSize(int, int);
 
+    static void MouseFcn(int, int, int, int);
+
     static int blockx, blocky;
 
     static float color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
+
+    static int NowSizex, NowSizey;
 };
 
 
