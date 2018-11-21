@@ -9,7 +9,6 @@ int Screen::blocky = 0;
 float Screen::color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
 int Screen::NowSizex = 0;
 int Screen::NowSizey = 0;
-float Screen::ChangeRate = 0;
 
 Screen::Screen(int argc, char **argv) {
     glutInit(&argc, argv);
@@ -63,6 +62,7 @@ void Screen::Run() {
     glutDisplayFunc(DisPlay);
     glutReshapeFunc(ChangeSize);
     glutMouseFunc(MouseFcn);
+    glutMotionFunc(MotionFcn);
     glutMainLoop();
 }
 
@@ -80,13 +80,13 @@ void Screen::SetDemo() {
         flag ^= 1;
         for (int j = 0; j < WINDOWS_SIZE_Y; j += blocky) {
             if (flag) {
-                color[i][j][0] = 0;
-                color[i][j][1] = 0;
+                color[i][j][0] = 1;
+                color[i][j][1] = 1;
                 color[i][j][2] = 1;
             } else {
-                color[i][j][0] = 0;
+                color[i][j][0] = 1;
                 color[i][j][1] = 1;
-                color[i][j][2] = 0;
+                color[i][j][2] = 1;
             }
             flag ^= 1;
         }
@@ -111,10 +111,18 @@ void Screen::ChangeSize(int w, int h) {
 
 void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
     float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockx;
-    if (action == GLUT_DOWN) {
+    if (true) {
         ymouse = NowSizey - ymouse;
         int changex = xmouse / nowblock, changey = ymouse / nowblock;
-        ChangePixel(changex+1, changey+1, 0, 0, 0);
+        ChangePixel(changex + 1, changey + 1, 0.5, 0.5, 0.5);
     }
+    glutPostRedisplay();
+}
+
+void Screen::MotionFcn(int x, int y) {
+    float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockx;
+    y = NowSizey - y;
+    int changex = x / nowblock, changey = y / nowblock;
+    ChangePixel(changex + 1, changey + 1, 0, 0, 0);
     glutPostRedisplay();
 }

@@ -21,6 +21,8 @@ public:
 
     static void MouseFcn(int, int, int, int);
 
+    static void MotionFcn(int, int);
+
     static int blockx, blocky;
 
     static float color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
