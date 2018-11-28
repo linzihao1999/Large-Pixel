@@ -23,11 +23,13 @@ public:
 
     static void MotionFcn(int, int);
 
+    static void LineBresenham(int, int);
+
     static int blockx, blocky;
-
     static float color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
-
+    static float tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
     static int NowSizex, NowSizey;
+    static int mousex, mousey;
 };
 
 

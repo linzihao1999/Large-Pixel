@@ -3,12 +3,15 @@
 #include "ConstNum.h"
 #include <cstdlib>
 #include <iostream>
+#include <cmath>
 
 int Screen::blockx = 0;
 int Screen::blocky = 0;
 float Screen::color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
+float Screen::tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
 int Screen::NowSizex = 0;
 int Screen::NowSizey = 0;
+int Screen::mousex = 0, Screen::mousey = 0;
 
 Screen::Screen(int argc, char **argv) {
     glutInit(&argc, argv);
@@ -111,18 +114,95 @@ void Screen::ChangeSize(int w, int h) {
 
 void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
     float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockx;
-    if (true) {
+    if (action == GLUT_DOWN) {
         ymouse = NowSizey - ymouse;
-        int changex = xmouse / nowblock, changey = ymouse / nowblock;
-        ChangePixel(changex + 1, changey + 1, 0.5, 0.5, 0.5);
+        int changex = int(xmouse / nowblock) + 1, changey = int(ymouse / nowblock) + 1;
+        mousex = changex;
+        mousey = changey;
+        for (int i = 0; i < WINDOWS_SIZE_X; i++)
+            for (int j = 0; j < WINDOWS_SIZE_Y; j++)
+                for (int k = 0; k < 3; k++)
+                    tcolor[i][j][k] = color[i][j][k];
     }
     glutPostRedisplay();
 }
 
 void Screen::MotionFcn(int x, int y) {
+    for (int i = 0; i < WINDOWS_SIZE_X; i++)
+        for (int j = 0; j < WINDOWS_SIZE_Y; j++)
+            for (int k = 0; k < 3; k++)
+                color[i][j][k] = tcolor[i][j][k];
     float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockx;
     y = NowSizey - y;
-    int changex = x / nowblock, changey = y / nowblock;
-    ChangePixel(changex + 1, changey + 1, 0, 0, 0);
+    int changex = int(x / nowblock) + 1, changey = int(y / nowblock) + 1;
+    //std::cout << "L" << std::endl;
+    LineBresenham(changex, changey);
+    //ChangePixel(changex + 1, changey + 1, 0, 0, 0);
     glutPostRedisplay();
+}
+
+void Screen::LineBresenham(int x1, int y1) {
+    int x = mousex, y = mousey;
+    if (x == x1) {
+        if (y <= y1)while (y <= y1)ChangePixel(x, y++, 0, 0, 0);
+        else while (y1 <= y)ChangePixel(x, y1++, 0, 0, 0);
+        return;
+    }
+    if (y == y1) {
+        if (x <= x1)while (x <= x1)ChangePixel(x++, y, 0, 0, 0);
+        else while (x1 <= x)ChangePixel(x1++, y, 0, 0, 0);
+        return;
+    }
+    if (x > x1) {
+        std::swap(x, x1);
+        std::swap(y, y1);
+    }
+    int dx = abs(x1 - x);
+    int dy = abs(y1 - y);
+    int twoDx = 2 * dx;
+    int twoDy = 2 * dy;
+    int twoDyMinusDx = 2 * (dy - dx);
+    int twoDxMinusDy = 2 * (dx - dy);
+    int p;
+    double k = (double) (y1 - y) / (double) (x1 - x);
+    if (fabs(k) <= 1) {
+        ChangePixel(x, y, 0, 0, 0);
+        p = 2 * dy - dx;
+        while (x < x1) {
+            if (p < 0) {
+                p += twoDy;
+            } else {
+                if (k >= 0)
+                    y++;
+                else
+                    y--;
+                p += twoDyMinusDx;
+            }
+            std::cout << p << ',';
+            ChangePixel(++x, y, 0, 0, 0);
+        }
+        std::cout << std::endl;
+    } else {
+        p = 2 * dx - dy;
+        std::cout << p << ',';
+        if (y > y1) {
+            std::swap(y, y1);
+            std::swap(x, x1);
+        }
+        ChangePixel(x, y, 0, 0, 0);
+        while (y < y1) {
+            if (p < 0) {
+                p += twoDx;
+            } else {
+                if (k >= 0)
+                    x++;
+                else
+                    x--;
+                p += twoDxMinusDy;
+            }
+            std::cout << p << ',';
+            ChangePixel(x, ++y, 0, 0, 0);
+        }
+        std::cout << std::endl;
+    }
 }
