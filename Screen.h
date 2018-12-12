@@ -11,13 +11,13 @@ public:
 
     void Run();
 
-    static void ChangePixel(int x, int y, float r, float g, float b);
+    static void SetColor(int x, int y, float r, float g, float b);
 
     void SetDemo();
 
-    static void DisPlay();
+    static void DisPlayFcn();
 
-    static void ChangeSize(int, int);
+    static void ChangeSizeFcn(int, int);
 
     static void MouseFcn(int, int, int, int);
 
@@ -25,11 +25,13 @@ public:
 
     static void LineBresenham(int, int);
 
-    static int blockx, blocky;
-    static float color[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
+    static void Ellips(int, int);
+
+    static int blockSize_x, blockSize_y;
+    static float blockColor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
     static float tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
     static int NowSizex, NowSizey;
-    static int mousex, mousey;
+    static int mouseClickOn_x, mouseClickOn_y;
 };
 
 
