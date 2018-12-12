@@ -2,7 +2,6 @@
 #define TEMP_SCREEN_H
 
 #include "ConstNum.h"
-#include <iostream>
 
 class Screen {
 public:
@@ -31,7 +30,6 @@ public:
     static float tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
     static int NowSizex, NowSizey;
     static int mousex, mousey;
-    std::pair<int, int> src_pos[N][M];
 };
 
 

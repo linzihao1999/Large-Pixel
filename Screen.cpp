@@ -38,26 +38,25 @@ void Screen::DisPlay() {
             glColor3f(color[x][y][0], color[x][y][1], color[x][y][2]);
             //glColor3f((double) rand() / RAND_MAX, (double) rand() / RAND_MAX, (double) rand() / RAND_MAX);
             //glColor3f(1, 1, 1);
+            glBegin(GL_POLYGON);
             glVertex2i(x, y);
             glVertex2i(x, y + blocky);
             glVertex2i(x + blockx, y + blocky);
             glVertex2i(x + blockx, y);
+            glEnd();
         }
     }
-    glEnd();
-    glBegin(GL_LINES);
-    glColor3f(0.0, 0.0, 0.0);
     for (int x = 0; x < WINDOWS_SIZE_X; x += blockx) {
         for (int y = 0; y < WINDOWS_SIZE_Y; y += blocky) {
+            glColor3f(0.0, 0.0, 0.0);
+            glBegin(GL_LINE_LOOP);
             glVertex2i(x, y);
             glVertex2i(x, y + blocky);
-            glVertex2i(x, y + blocky);
-            glVertex2i(x + blockx, y + blocky);
             glVertex2i(x + blockx, y + blocky);
             glVertex2i(x + blockx, y);
+            glEnd();
         }
     }
-    glEnd();
     glFlush();
     //glutPostRedisplay();
 }
@@ -71,7 +70,8 @@ void Screen::Run() {
 }
 
 void Screen::ChangePixel(int x, int y, float r, float g, float b) {
-    x--, y--;
+    x--;
+    y--;
     color[x * blockx][y * blocky][0] = r;
     color[x * blockx][y * blocky][1] = g;
     color[x * blockx][y * blocky][2] = b;
