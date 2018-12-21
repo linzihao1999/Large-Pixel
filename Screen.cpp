@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <algorithm>
+#include <set>
 
 int Screen::blockSize_x = 0;
 int Screen::blockSize_y = 0;
@@ -12,6 +15,7 @@ float Screen::tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
 int Screen::NowSizex = 0;
 int Screen::NowSizey = 0;
 int Screen::mouseClickOn_x = 0, Screen::mouseClickOn_y = 0;
+std::vector<R> Screen::points={};
 
 Screen::Screen(int argc, char **argv) {
     glutInit(&argc, argv);
@@ -207,6 +211,34 @@ void Screen::LineBresenham(int x1, int y1) {
     }
 }
 
-void Screen::Ellips(int, int) {
+void Screen::Fill() {
+    std::vector<R> edge[WINDOWS_SIZE_X];
+    for (int i = 0; i < points.size(); i++) {
+        auto last = points[i == 0 ? points.size() - 1 : i - 1];
+        auto push = [&]() -> void {
+            edge[points[i].y].emplace_back(last.y, points[i].x,
+                                           (double) (last.x - points[i].x) / last.y - points[i].y);
+        };
+        if (points[i].x < last.x) push();
+        last = points[i == points.size() - 1 ? 0 : i + 1];
+        if (points[i].x < last.x) push();
+    }
+    std::set<R> list;
+    for (int i = 0; i < WINDOWS_SIZE_X; i++) {
+        if (edge[i].size() != 0) {
+            std::sort(edge[i].begin(), edge[i].end(),
+                      [](R A, R B) -> bool { return A.y < B.y; });
 
+        }
+        if (list.size() != 0) {
+            int p = 0;
+            auto last = list.begin(), it = list.begin();
+            for (; it != list.begin(); ++it) {
+                for (int j = last->x; j < it->x; j++) {
+                    //SetColor();
+                }
+                last = it;
+            }
+        }
+    }
 }
