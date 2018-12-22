@@ -7,9 +7,9 @@
 
 class R {
 public:
-    R(int y1, int x1, double k1 = 0) : y(y1), x(x1), k(k1) {}
+    R(int x1, int y1, double k1 = 0) : y(y1), x(x1), k(k1) {}
 
-    int y, x;
+    int x, y;
     double k;
 };
 

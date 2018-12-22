@@ -119,11 +119,14 @@ void Screen::ChangeSizeFcn(int w, int h) {
 void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
     float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockSize_x;
     if (action == GLUT_DOWN) {
+        for (int i = 0; i < WINDOWS_SIZE_X; i += blockSize_x)
+            for (int j = 0; j < WINDOWS_SIZE_Y; j += blockSize_y)
+                for (int k = 0; k < 3; k++)
+                    blockColor[i][j][k] = 1;
         ymouse = NowSizey - ymouse;
         int changex = int(xmouse / nowblock) + 1, changey = int(ymouse / nowblock) + 1;
-        points.emplace_back(changey, changex);
+        points.emplace_back(changex, changey);
         Fill();
-        std::cout << changex << ' ' << changey << std::endl;
     }
     glutPostRedisplay();
 }
@@ -179,13 +182,10 @@ void Screen::LineBresenham(int x0, int y0, int x1, int y1) {
                     y--;
                 p += twoDyMinusDx;
             }
-            std::cout << p << ',';
             SetColor(++x, y, 0, 0, 0);
         }
-        std::cout << std::endl;
     } else {
         p = 2 * dx - dy;
-        std::cout << p << ',';
         if (y > y1) {
             std::swap(y, y1);
             std::swap(x, x1);
@@ -201,10 +201,8 @@ void Screen::LineBresenham(int x0, int y0, int x1, int y1) {
                     x--;
                 p += twoDxMinusDy;
             }
-            std::cout << p << ',';
             SetColor(x, ++y, 0, 0, 0);
         }
-        std::cout << std::endl;
     }
 }
 
@@ -220,7 +218,6 @@ void Screen::Fill() {
     }
     LineBresenham(points[points.size() - 1].x, points[points.size() - 1].y,
                   points[0].x, points[0].y);
-    return;
     std::vector<R> edge[WINDOWS_SIZE_X];
     for (int i = 0; i < points.size(); i++) {
         auto last = points[i == 0 ? points.size() - 1 : i - 1];
