@@ -7,10 +7,17 @@
 
 class R {
 public:
-    R(int x1, int y1, double k1 = 0) : y(y1), x(x1), k(k1) {}
+    R(int x1, int y1, double k1) : startx(x1), maxy(y1), dm(k1) {}
 
+    R(int x1, int y1) : x(x1), y(y1) {}
+
+    int startx, maxy;
     int x, y;
-    double k;
+    double dm;
+
+    bool operator<(const struct R &r) const {
+        return startx < r.startx;
+    }
 };
 
 class Screen {

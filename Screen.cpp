@@ -121,8 +121,9 @@ void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
     if (action == GLUT_DOWN) {
         for (int i = 0; i < WINDOWS_SIZE_X; i += blockSize_x)
             for (int j = 0; j < WINDOWS_SIZE_Y; j += blockSize_y)
-                for (int k = 0; k < 3; k++)
+                for (int k = 0; k < 3; k++) {
                     blockColor[i][j][k] = 1;
+                }
         ymouse = NowSizey - ymouse;
         int changex = int(xmouse / nowblock) + 1, changey = int(ymouse / nowblock) + 1;
         points.emplace_back(changex, changey);
@@ -207,7 +208,6 @@ void Screen::LineBresenham(int x0, int y0, int x1, int y1) {
 }
 
 void Screen::Fill() {
-    //std::cout << points[0].x << ' ' << points[0].y << std::endl;
     if (points.size() == 1) {
         SetColor(points[0].x, points[0].y, 0, 0, 0);
         return;
@@ -218,32 +218,19 @@ void Screen::Fill() {
     }
     LineBresenham(points[points.size() - 1].x, points[points.size() - 1].y,
                   points[0].x, points[0].y);
-    std::vector<R> edge[WINDOWS_SIZE_X];
+    std::vector<R> edge[N];
     for (int i = 0; i < points.size(); i++) {
         auto last = points[i == 0 ? points.size() - 1 : i - 1];
         auto push = [&]() -> void {
-            edge[points[i].y].emplace_back(last.y, points[i].x,
+            edge[points[i].y].emplace_back(points[i].x, last.y,
                                            (double) (last.x - points[i].x) / last.y - points[i].y);
         };
-        if (points[i].x < last.x) push();
+        if (points[i].y < last.y) push();
         last = points[i == points.size() - 1 ? 0 : i + 1];
-        if (points[i].x < last.x) push();
+        if (points[i].y < last.y) push();
     }
     std::set<R> list;
-    for (int i = 0; i < WINDOWS_SIZE_X; i++) {
-        if (edge[i].size() != 0) {
-            std::sort(edge[i].begin(), edge[i].end(),
-                      [](R A, R B) -> bool { return A.y < B.y; });
-        }
-        if (list.size() != 0) {
-            int p = 0;
-            auto last = list.begin(), it = list.begin();
-            for (; it != list.begin(); ++it) {
-                for (int j = last->x; j < it->x; j++) {
-                    //SetColor();
-                }
-                last = it;
-            }
-        }
+    for (int i = 0; i < N; i++) {
+
     }
 }
