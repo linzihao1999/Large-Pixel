@@ -35,7 +35,7 @@ public:
 
     static void MotionFcn(int, int);
 
-    static void LineBresenham(int, int);
+    static void LineBresenham(int, int, int, int);
 
     static void Fill();
 

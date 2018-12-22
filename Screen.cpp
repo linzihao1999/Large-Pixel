@@ -15,7 +15,7 @@ float Screen::tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
 int Screen::NowSizex = 0;
 int Screen::NowSizey = 0;
 int Screen::mouseClickOn_x = 0, Screen::mouseClickOn_y = 0;
-std::vector<R> Screen::points={};
+std::vector<R> Screen::points = {};
 
 Screen::Screen(int argc, char **argv) {
     glutInit(&argc, argv);
@@ -69,7 +69,7 @@ void Screen::Run() {
     glutDisplayFunc(DisPlayFcn);
     glutReshapeFunc(ChangeSizeFcn);
     glutMouseFunc(MouseFcn);
-    glutMotionFunc(MotionFcn);
+    //glutMotionFunc(MotionFcn);
     glutMainLoop();
 }
 
@@ -121,12 +121,9 @@ void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
     if (action == GLUT_DOWN) {
         ymouse = NowSizey - ymouse;
         int changex = int(xmouse / nowblock) + 1, changey = int(ymouse / nowblock) + 1;
-        mouseClickOn_x = changex;
-        mouseClickOn_y = changey;
-        for (int i = 0; i < WINDOWS_SIZE_X; i++)
-            for (int j = 0; j < WINDOWS_SIZE_Y; j++)
-                for (int k = 0; k < 3; k++)
-                    tcolor[i][j][k] = blockColor[i][j][k];
+        points.emplace_back(changey, changex);
+        Fill();
+        std::cout << changex << ' ' << changey << std::endl;
     }
     glutPostRedisplay();
 }
@@ -140,13 +137,13 @@ void Screen::MotionFcn(int x, int y) {
     y = NowSizey - y;
     int changex = int(x / nowblock) + 1, changey = int(y / nowblock) + 1;
     //std::cout << "L" << std::endl;
-    LineBresenham(changex, changey);
+    //LineBresenham(changex, changey);
     //SetColor(changex + 1, changey + 1, 0, 0, 0);
     glutPostRedisplay();
 }
 
-void Screen::LineBresenham(int x1, int y1) {
-    int x = mouseClickOn_x, y = mouseClickOn_y;
+void Screen::LineBresenham(int x0, int y0, int x1, int y1) {
+    int x = x0, y = y0;
     if (x == x1) {
         if (y <= y1)while (y <= y1)SetColor(x, y++, 0, 0, 0);
         else while (y1 <= y)SetColor(x, y1++, 0, 0, 0);
@@ -212,6 +209,18 @@ void Screen::LineBresenham(int x1, int y1) {
 }
 
 void Screen::Fill() {
+    //std::cout << points[0].x << ' ' << points[0].y << std::endl;
+    if (points.size() == 1) {
+        SetColor(points[0].x, points[0].y, 0, 0, 0);
+        return;
+    }
+    for (int i = 1; i < points.size(); i++) {
+        LineBresenham(points[i - 1].x, points[i - 1].y,
+                      points[i].x, points[i].y);
+    }
+    LineBresenham(points[points.size() - 1].x, points[points.size() - 1].y,
+                  points[0].x, points[0].y);
+    return;
     std::vector<R> edge[WINDOWS_SIZE_X];
     for (int i = 0; i < points.size(); i++) {
         auto last = points[i == 0 ? points.size() - 1 : i - 1];
@@ -228,7 +237,6 @@ void Screen::Fill() {
         if (edge[i].size() != 0) {
             std::sort(edge[i].begin(), edge[i].end(),
                       [](R A, R B) -> bool { return A.y < B.y; });
-
         }
         if (list.size() != 0) {
             int p = 0;
