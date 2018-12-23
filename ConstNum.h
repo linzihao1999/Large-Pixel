@@ -3,6 +3,6 @@
 
 const int WINDOWS_POSITION_X = 50, WINDOWS_POSITION_Y = 50;
 const int WINDOWS_SIZE_X = 700, WINDOWS_SIZE_Y = 700;
-const int N = 25, M = 25;
+const int N = 100, M = 100;
 
 #endif

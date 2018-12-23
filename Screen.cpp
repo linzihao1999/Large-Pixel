@@ -15,7 +15,8 @@ float Screen::tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
 int Screen::NowSizex = 0;
 int Screen::NowSizey = 0;
 int Screen::mouseClickOn_x = 0, Screen::mouseClickOn_y = 0;
-std::vector<R> Screen::points = {};
+std::vector<R> Screen::points{};//= {R(3, 1), R(1, 3), R(5, 5)};
+std::set<R> Screen::list = {};
 
 Screen::Screen(int argc, char **argv) {
     glutInit(&argc, argv);
@@ -212,25 +213,64 @@ void Screen::Fill() {
         SetColor(points[0].x, points[0].y, 0, 0, 0);
         return;
     }
+    if (points.size() == 2) {
+        LineBresenham(points[0].x, points[0].y,
+                      points[1].x, points[1].y);
+        return;
+    }
+    if (points.size() < 3)return;
+    std::vector<R> edge[N];
+    for (int i = 0; i < points.size(); i++) {
+        auto last = points[i == 0 ? points.size() - 1 : i - 1];
+        auto push = [&]() -> void {
+            edge[points[i].y].emplace_back(points[i].x, last.y,
+                                           (double) (last.x - points[i].x) / (last.y - points[i].y));
+        };
+        if (points[i].y < last.y)
+            push();
+
+        last = points[i == points.size() - 1 ? 0 : i + 1];
+        if (points[i].y < last.y)
+            push();
+    }
+    for (int i = 0; i < N; i++) {
+        std::cout << i << ":";
+        for (auto it:edge[i])
+            std::cout << it.startx << ' ' << it.maxy << ' ' << it.dm << ", ";
+        std::cout << std::endl;
+    }
+    for (int i = 0; i < N; i++) {
+        std::cout << std::endl;
+        if (!list.empty())
+            for (auto a = list.begin(), b = list.begin(); b != list.end(); ++b, a = b) {
+                ++b;
+                if (b != list.end()) {
+                    for (int j = (int) a->startx + 1; j < b->startx; j++)SetColor(j, i, 1, 0, 1);
+                } else break;
+            }
+        if (!edge[i].empty())
+            for (auto it:edge[i])
+                list.insert(it);
+        if (!list.empty()) {
+            std::set<R> tlist;
+            for (std::set<R>::iterator it = list.begin(); it != list.end(); ++it) {
+                //std::cout << it->startx << ' ' << it->maxy << ' ' << it->dm << std::endl;
+                if (it->maxy > i) {
+                    tlist.insert(R(it->startx + it->dm, it->maxy, it->dm));
+                }
+            }
+            list.clear();
+            list = tlist;
+        }
+        std::cout << i << ": ";
+        for (auto it:list) {
+            std::cout << it.startx << ", ";
+        }
+    }
     for (int i = 1; i < points.size(); i++) {
         LineBresenham(points[i - 1].x, points[i - 1].y,
                       points[i].x, points[i].y);
     }
     LineBresenham(points[points.size() - 1].x, points[points.size() - 1].y,
                   points[0].x, points[0].y);
-    std::vector<R> edge[N];
-    for (int i = 0; i < points.size(); i++) {
-        auto last = points[i == 0 ? points.size() - 1 : i - 1];
-        auto push = [&]() -> void {
-            edge[points[i].y].emplace_back(points[i].x, last.y,
-                                           (double) (last.x - points[i].x) / last.y - points[i].y);
-        };
-        if (points[i].y < last.y) push();
-        last = points[i == points.size() - 1 ? 0 : i + 1];
-        if (points[i].y < last.y) push();
-    }
-    std::set<R> list;
-    for (int i = 0; i < N; i++) {
-
-    }
 }

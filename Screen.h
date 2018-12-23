@@ -4,18 +4,21 @@
 #include "ConstNum.h"
 #include <vector>
 #include <iostream>
+#include <set>
 
 class R {
 public:
-    R(int x1, int y1, double k1) : startx(x1), maxy(y1), dm(k1) {}
+    R(double x1, int y1, double k1) : startx(x1), maxy(y1), dm(k1) {}
 
     R(int x1, int y1) : x(x1), y(y1) {}
 
-    int startx, maxy;
+    double startx;
+    int maxy;
     int x, y;
     double dm;
 
-    bool operator<(const struct R &r) const {
+    bool operator<(const R &r) const {
+        if (startx == r.startx)return maxy < r.maxy;
         return startx < r.startx;
     }
 };
@@ -52,6 +55,7 @@ public:
     static int NowSizex, NowSizey;
     static int mouseClickOn_x, mouseClickOn_y;
     static std::vector<R> points;
+    static std::set<R> list;
 };
 
 #endif
