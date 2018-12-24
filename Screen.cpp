@@ -218,7 +218,6 @@ void Screen::Fill() {
                       points[1].x, points[1].y);
         return;
     }
-    if (points.size() < 3)return;
     std::vector<R> edge[N];
     for (int i = 0; i < points.size(); i++) {
         auto last = points[i == 0 ? points.size() - 1 : i - 1];
@@ -253,7 +252,7 @@ void Screen::Fill() {
                 list.insert(it);
         if (!list.empty()) {
             std::set<R> tlist;
-            for (std::set<R>::iterator it = list.begin(); it != list.end(); ++it) {
+            for (auto it = list.begin(); it != list.end(); ++it) {
                 //std::cout << it->startx << ' ' << it->maxy << ' ' << it->dm << std::endl;
                 if (it->maxy > i) {
                     tlist.insert(R(it->startx + it->dm, it->maxy, it->dm));
