@@ -224,7 +224,7 @@ void Screen::Fill() {
         auto last = points[i == 0 ? points.size() - 1 : i - 1];
         auto push = [&]() -> void {
             edge[points[i].y].emplace_back(points[i].x, last.y,
-                                           (double) (last.x - points[i].x) / (last.y - points[i].y));
+                                           (double) (last.x - points[i].x) / (last.y - points[i].y + 1e-9));
         };
         if (points[i].y < last.y)
             push();
