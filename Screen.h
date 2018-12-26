@@ -49,13 +49,18 @@ public:
 
     static void Fill();
 
+    void FillMode(bool f) {
+        this->FILLMODE = f;
+    }
+
     static int blockSize_x, blockSize_y;
     static float blockColor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
-    static float tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
-    static int NowSizex, NowSizey;
-    static int mouseClickOn_x, mouseClickOn_y;
+    static float tColor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3];
+    static int nowSizex, nowSizey;
     static std::vector<R> points;
     static std::set<R> list;
+private:
+    bool FILLMODE;
 };
 
 #endif

@@ -1,5 +1,6 @@
-#include "Screen.h"
 #include <GLUT/glut.h>
+
+#include "Screen.h"
 #include "ConstNum.h"
 #include <cstdlib>
 #include <iostream>
@@ -11,10 +12,9 @@
 int Screen::blockSize_x = 0;
 int Screen::blockSize_y = 0;
 float Screen::blockColor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
-float Screen::tcolor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
-int Screen::NowSizex = 0;
-int Screen::NowSizey = 0;
-int Screen::mouseClickOn_x = 0, Screen::mouseClickOn_y = 0;
+float Screen::tColor[WINDOWS_SIZE_X][WINDOWS_SIZE_Y][3] = {};
+int Screen::nowSizex = 0;
+int Screen::nowSizey = 0;
 std::vector<R> Screen::points{};//= {R(3, 1), R(1, 3), R(5, 5)};
 std::set<R> Screen::list = {};
 
@@ -32,25 +32,31 @@ void Screen::Init() {
     gluOrtho2D(0.0, WINDOWS_SIZE_X, 0.0, WINDOWS_SIZE_Y);
     blockSize_x = WINDOWS_SIZE_X / N;
     blockSize_y = WINDOWS_SIZE_Y / M;
-    NowSizex = WINDOWS_SIZE_X;
-    NowSizey = WINDOWS_SIZE_Y;
+    nowSizex = WINDOWS_SIZE_X;
+    nowSizey = WINDOWS_SIZE_Y;
+    for (int i = 0; i < WINDOWS_SIZE_X; i += Screen::blockSize_x) {
+        for (int j = 0; j < WINDOWS_SIZE_Y; j += Screen::blockSize_y) {
+            for (int k = 0; k < 3; k++)
+                Screen::blockColor[i][j][k] = 1;
+        }
+    }
 }
 
 void Screen::DisPlayFcn() {
     glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_QUADS);
     for (int x = 0; x < WINDOWS_SIZE_X; x += blockSize_x) {
         for (int y = 0; y < WINDOWS_SIZE_Y; y += blockSize_y) {
             glColor3f(blockColor[x][y][0], blockColor[x][y][1], blockColor[x][y][2]);
             //glColor3f((double) rand() / RAND_MAX, (double) rand() / RAND_MAX, (double) rand() / RAND_MAX);
             //glColor3f(1, 1, 1);
-            glBegin(GL_POLYGON);
             glVertex2i(x, y);
             glVertex2i(x, y + blockSize_y);
             glVertex2i(x + blockSize_x, y + blockSize_y);
             glVertex2i(x + blockSize_x, y);
-            glEnd();
         }
     }
+    glEnd();
     for (int x = 0; x < WINDOWS_SIZE_X; x += blockSize_x) {
         for (int y = 0; y < WINDOWS_SIZE_Y; y += blockSize_y) {
             glColor3f(0.0, 0.0, 0.0);
@@ -70,7 +76,7 @@ void Screen::Run() {
     glutDisplayFunc(DisPlayFcn);
     glutReshapeFunc(ChangeSizeFcn);
     glutMouseFunc(MouseFcn);
-    //glutMotionFunc(MotionFcn);
+    if (!FILLMODE)glutMotionFunc(MotionFcn);
     glutMainLoop();
 }
 
@@ -103,8 +109,8 @@ void Screen::SetDemo() {
 }
 
 void Screen::ChangeSizeFcn(int w, int h) {
-    NowSizex = w;
-    NowSizey = h;
+    nowSizex = w;
+    nowSizey = h;
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -118,14 +124,14 @@ void Screen::ChangeSizeFcn(int w, int h) {
 }
 
 void Screen::MouseFcn(int button, int action, int xmouse, int ymouse) {
-    float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockSize_x;
+    float nowblock = (float) WINDOWS_SIZE_X / std::min(nowSizex, nowSizey) * blockSize_x;
     if (action == GLUT_DOWN) {
         for (int i = 0; i < WINDOWS_SIZE_X; i += blockSize_x)
             for (int j = 0; j < WINDOWS_SIZE_Y; j += blockSize_y)
                 for (int k = 0; k < 3; k++) {
                     blockColor[i][j][k] = 1;
                 }
-        ymouse = NowSizey - ymouse;
+        ymouse = nowSizey - ymouse;
         int changex = int(xmouse / nowblock) + 1, changey = int(ymouse / nowblock) + 1;
         points.emplace_back(changex, changey);
         Fill();
@@ -137,9 +143,9 @@ void Screen::MotionFcn(int x, int y) {
     for (int i = 0; i < WINDOWS_SIZE_X; i++)
         for (int j = 0; j < WINDOWS_SIZE_Y; j++)
             for (int k = 0; k < 3; k++)
-                blockColor[i][j][k] = tcolor[i][j][k];
-    float nowblock = (float) WINDOWS_SIZE_X / std::min(NowSizex, NowSizey) * blockSize_x;
-    y = NowSizey - y;
+                blockColor[i][j][k] = tColor[i][j][k];
+    float nowblock = (float) WINDOWS_SIZE_X / std::min(nowSizex, nowSizey) * blockSize_x;
+    y = nowSizey - y;
     int changex = int(x / nowblock) + 1, changey = int(y / nowblock) + 1;
     //std::cout << "L" << std::endl;
     //LineBresenham(changex, changey);
@@ -227,19 +233,11 @@ void Screen::Fill() {
         };
         if (points[i].y < last.y)
             push();
-
         last = points[i == points.size() - 1 ? 0 : i + 1];
         if (points[i].y < last.y)
             push();
     }
     for (int i = 0; i < N; i++) {
-        std::cout << i << ":";
-        for (auto it:edge[i])
-            std::cout << it.startx << ' ' << it.maxy << ' ' << it.dm << ", ";
-        std::cout << std::endl;
-    }
-    for (int i = 0; i < N; i++) {
-        std::cout << std::endl;
         if (!list.empty())
             for (auto a = list.begin(), b = list.begin(); b != list.end(); ++b, a = b) {
                 ++b;
@@ -253,17 +251,12 @@ void Screen::Fill() {
         if (!list.empty()) {
             std::set<R> tlist;
             for (auto it = list.begin(); it != list.end(); ++it) {
-                //std::cout << it->startx << ' ' << it->maxy << ' ' << it->dm << std::endl;
                 if (it->maxy > i) {
                     tlist.insert(R(it->startx + it->dm, it->maxy, it->dm));
                 }
             }
             list.clear();
             list = tlist;
-        }
-        std::cout << i << ": ";
-        for (auto it:list) {
-            std::cout << it.startx << ", ";
         }
     }
     for (int i = 1; i < points.size(); i++) {
